@@ -14,9 +14,10 @@ Clone the git repo to your machine:
 git clone https://github.com/MattKobayashi/nbnchecker.git
 ```
 
-Create and activate a virtual environment to isolate dependencies:
+Change to the new directory, create and activate a virtual environment to isolate dependencies:
 
 ```
+cd nbnchecker
 python3 -m venv venv
 source venv/bin/activate
 ```
