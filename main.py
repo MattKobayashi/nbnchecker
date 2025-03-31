@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import uvicorn
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
@@ -5,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 # Import the refactored functions from nbnchecker
-from nbnchecker import nbnQueryAddress, nbnLocDetails
+from api import nbnQueryAddress, nbnLocDetails
 
 app = FastAPI()
 
