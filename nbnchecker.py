@@ -1,7 +1,13 @@
 #! /usr/bin/env python3
-from requests import get
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "requests==2.32.3",
+# ]
+# ///
 import sys
 import os
+from requests import get
 
 
 def main():
