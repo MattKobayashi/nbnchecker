@@ -10,46 +10,6 @@ import os
 from requests import get
 
 
-def main():
-    checkAddress = input("Enter address to check: ")
-    # Run the nbnCheck function with the address as an input
-    addressQueryResult = nbnQueryAddress(checkAddress)
-    # Print an error if no valid suggestions are returned
-    if addressQueryResult["validResult"] is False:
-        print(
-            "\nThere are no matches for this address. Please check your input and try again.\n"
-        )
-        return
-    else:
-        # Print the formatted address for the selected address
-        print("\nYour selected address is: ", addressQueryResult["selectedAddress"])
-
-    # Get the details for the returned location ID
-    locQueryResult = nbnLocDetails(addressQueryResult["locID"])
-    if locQueryResult["exactMatch"] is True:
-        # Exact match to an NBN LOC ID, print the specifics for that match
-        print("\nLOC ID: ", locQueryResult["locID"])
-        print("Service Status: ", locQueryResult["serviceStatus"])
-        if locQueryResult["statusMessage"] == "connected-true":
-            print("An AVC is active at this LOC ID!")
-        if locQueryResult["statusMessage"] == "connected":
-            print("This LOC ID is ready for remote AVC provisioning!")
-        if locQueryResult["coatChangeReason"] == "on-demand":
-            print(
-                "On-Demand Fibre Upgrade is available for this LOC ID from",
-                locQueryResult["patChangeDate"],
-                "!",
-            )
-    else:
-        # No exact match to an NBN LOC ID, print the serving area details
-        print(
-            "\nThere is no exact match in the NBN database for your selected address."
-        )
-        print("Serving Area details are as follows.")
-        print("\nCSA ID: ", locQueryResult["csaID"])
-    print("Technology Type: ", locQueryResult["techType"])
-    print("\n")
-
 
 def nbnQueryAddress(address: str) -> dict:
     # Empty dict to store results
@@ -59,31 +19,20 @@ def nbnQueryAddress(address: str) -> dict:
     apiUrl = f"https://places.nbnco.net.au/places/v1/autocomplete?query={address}"
     apiResponse = get(apiUrl, headers={"Referer": "https://www.nbnco.com.au"}).json()
 
-    if len(apiResponse["suggestions"]) > 0:
+    # Check if 'suggestions' key exists and is not empty
+    if "suggestions" in apiResponse and len(apiResponse["suggestions"]) > 0:
         # We have at least one valid address suggestion
         results["validResult"] = True
-        if len(apiResponse["suggestions"]) != 1:
-            # More than one suggestion is given, display a list and ask for selection
-            suggestionsList = apiResponse["suggestions"]
-            # Generate a list of suggested addresses
-            print("\nPlease choose your address from the list below: ")
-            for n, address in enumerate(suggestionsList):
-                print(f"{n}: ", address["formattedAddress"])
-            selectedAddressNum = int(input("\nSelection: "))
-            # Once a suggestion is selected, return the address and LOC ID
-            results["selectedAddress"] = suggestionsList[selectedAddressNum][
-                "formattedAddress"
-            ]
-            results["locID"] = suggestionsList[selectedAddressNum]["id"]
-        else:
-            # Only one suggestion is given, return the address and LOC ID immediately
-            results["selectedAddress"] = apiResponse["suggestions"][0][
-                "formattedAddress"
-            ]
-            results["locID"] = apiResponse["suggestions"][0]["id"]
+        # Always take the first suggestion for simplicity in the web UI
+        first_suggestion = apiResponse["suggestions"][0]
+        results["selectedAddress"] = first_suggestion["formattedAddress"]
+        results["locID"] = first_suggestion["id"]
     else:
         # No suggestions are given, return False for validResult
         results["validResult"] = False
+        results["selectedAddress"] = None
+        results["locID"] = None
+
     return results
 
 
@@ -120,12 +69,3 @@ def nbnLocDetails(locID: str) -> dict:
     return results
 
 
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\nBye!")
-        try:
-            sys.exit(1)
-        except SystemExit:
-            os._exit(1)

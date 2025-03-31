@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NBN Checker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container mt-4">
+        <h1>NBN Address Checker</h1>
+
+        <form action="/" method="post" class="mb-4">
+            <div class="mb-3">
+                <label for="address" class="form-label">Enter address to check:</label>
+                <input type="text" class="form-control" id="address" name="address" required value="{{ address_input | default('') }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Check Address</button>
+        </form>
+
+        {% if error_message %}
+            <div class="alert alert-danger" role="alert">
+                {{ error_message }}
+            </div>
+        {% endif %}
+
+        {% if results %}
+            <h2>Results</h2>
+            <p><strong>Selected Address:</strong> {{ results.selectedAddress }}</p>
+
+            {% if results.loc_details.exactMatch %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Exact NBN Location Match
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>LOC ID:</strong> {{ results.loc_details.locID }}</li>
+                        <li class="list-group-item"><strong>Technology Type:</strong> {{ results.loc_details.techType }}</li>
+                        <li class="list-group-item"><strong>Service Status:</strong> {{ results.loc_details.serviceStatus }}</li>
+                    </ul>
+                </div>
+                {% if results.loc_details.statusMessage == "connected-true" %}
+                <div class="alert alert-warning" role="alert">
+                    An AVC is active at this LOC ID!
+                </div>
+                {% endif %}
+                {% if results.loc_details.statusMessage == "connected" %}
+                <div class="alert alert-success" role="alert">
+                    This LOC ID is ready for remote AVC provisioning!
+                </div>
+                {% endif %}
+                 {% if results.loc_details.coatChangeReason == "on-demand" %}
+                <div class="alert alert-info" role="alert">
+                    On-Demand Fibre Upgrade is available for this LOC ID from {{ results.loc_details.patChangeDate }}!
+                </div>
+                {% endif %}
+
+            {% else %}
+                 <div class="alert alert-secondary" role="alert">
+                    There is no exact match in the NBN database for your selected address. Serving Area details are as follows.
+                </div>
+                 <div class="card mb-3">
+                    <div class="card-header">
+                        Serving Area Details
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>CSA ID:</strong> {{ results.loc_details.csaID }}</li>
+                        <li class="list-group-item"><strong>Technology Type:</strong> {{ results.loc_details.techType }}</li>
+                    </ul>
+                </div>
+            {% endif %}
+        {% endif %}
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  </body>
+</html>
