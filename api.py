@@ -12,12 +12,19 @@ def nbnQueryAddress(address: str) -> dict:
 
     # Check if 'suggestions' key exists and is not empty
     if "suggestions" in apiResponse and len(apiResponse["suggestions"]) > 0:
-        # We have at least one valid address suggestion
-        results["validResult"] = True
         # Always take the first suggestion for simplicity in the web UI
         first_suggestion = apiResponse["suggestions"][0]
-        results["selectedAddress"] = first_suggestion["formattedAddress"]
-        results["locID"] = first_suggestion["id"]
+        loc_id = first_suggestion["id"]
+        # Check if the locID starts with "LOC"
+        if loc_id.startswith("LOC"):
+            results["validResult"] = True
+            results["selectedAddress"] = first_suggestion["formattedAddress"]
+            results["locID"] = loc_id
+        else:
+            # Invalid locID format
+            results["validResult"] = False
+            results["selectedAddress"] = None
+            results["locID"] = None
     else:
         # No suggestions are given, return False for validResult
         results["validResult"] = False
