@@ -21,6 +21,7 @@ RUN apk --no-cache add uv \
 COPY --chmod=755 --chown=${UID}:${GID} api.py api.py
 COPY --chmod=644 --chown=${UID}:${GID} main.py main.py
 COPY --chmod=644 --chown=${UID}:${GID} pyproject.toml pyproject.toml
+COPY --chmod=644 --chown=${UID}:${GID} templates/ templates/
 EXPOSE 8000
 USER ${USERNAME}
 ENTRYPOINT ["uv", "run", "main.py"]

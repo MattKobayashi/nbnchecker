@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+#from fastapi.staticfiles import StaticFiles
 
 # Import the refactored functions from nbnchecker
 from api import nbnQueryAddress, nbnLocDetails
