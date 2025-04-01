@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/MattKobayashi/nbnchecker/compare/v1.0.0...v1.0.1) (2025-04-01)
+
+
+### Documentation
+
+* Update installation instructions to use Docker ([#17](https://github.com/MattKobayashi/nbnchecker/issues/17)) ([b9d0a3b](https://github.com/MattKobayashi/nbnchecker/commit/b9d0a3b45176a7823744160b180ad4da73545d09))
+
 ## 1.0.0 (2025-04-01)
 
 
