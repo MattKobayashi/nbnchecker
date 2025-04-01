@@ -3,6 +3,26 @@ env:
   REPO_NAME: mattkobayashi
   IMAGE_NAME: nbnchecker
 jobs:
+  python:
+    name: Python
+    runs-on: ubuntu-24.04
+    steps:
+      # Checkout the repository
+      # https://github.com/actions/checkout
+      - name: Checkout the repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      # Set up Python 3.13
+      # https://github.com/actions/setup-python
+      - name: Set up Python 3.13
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+        with:
+          python-version: "3.13"
+      # Run Python unit tests
+      - name: Run Python unit tests
+        run: |
+          set -eux
+          pipx install uv
+          uv run python3 -m unittest discover tests
   container:
     name: Container image
     runs-on: ubuntu-24.04
