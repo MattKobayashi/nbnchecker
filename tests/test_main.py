@@ -4,6 +4,7 @@ from unittest.mock import patch, MagicMock, ANY, Mock # ANY is useful for contex
 import sys
 import os
 import json
+import importlib
 
 # Add the parent directory to the Python path to allow importing 'main'
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -40,9 +41,8 @@ class TestCheckAddressFunction(unittest.TestCase):
         """Helper function to run async functions in tests."""
         return asyncio.run(coro)
 
-    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
-    def test_check_address_success_exact_match(self, mock_template_response, mock_requests_get):
+    def test_check_address_success_exact_match(self, mock_template_response):
         """Test successful address check with an exact match result."""
         # --- Arrange ---
         test_address = MockForm("1 Test St")
@@ -72,29 +72,37 @@ class TestCheckAddressFunction(unittest.TestCase):
         }
         mock_details_response.raise_for_status = MagicMock()
 
-        # Setup mock responses
-        mock_requests_get.side_effect = [mock_addr_response, mock_details_response]
+        # Create a mock for requests.get and apply it at module level
+        mock_get = MagicMock(side_effect=[mock_addr_response, mock_details_response])
         
-        # --- Act ---
-        async def test_coro():
-            return await check_address(request=mock_request, address=test_address)
-        self._run_async(test_coro())
+        # Apply patches directly to the module
+        import requests
+        original_get = requests.get
+        requests.get = mock_get
         
-        # --- Assert ---
-        self.assertEqual(mock_requests_get.call_count, 2)
-        mock_requests_get.assert_any_call(
-            f"https://places.nbnco.net.au/places/v1/autocomplete?query={test_address}",
-            headers=ANY
-        )
-        mock_requests_get.assert_any_call(
-            "https://places.nbnco.net.au/places/v2/details/LOC123",
-            headers=ANY
-        )
-        mock_template_response.assert_called_once()
+        try:
+            # --- Act ---
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address)
+            result = self._run_async(test_coro())
+            
+            # --- Assert ---
+            self.assertEqual(mock_get.call_count, 2)
+            mock_get.assert_any_call(
+                f"https://places.nbnco.net.au/places/v1/autocomplete?query={test_address}",
+                headers=ANY
+            )
+            mock_get.assert_any_call(
+                "https://places.nbnco.net.au/places/v2/details/LOC123",
+                headers=ANY
+            )
+            mock_template_response.assert_called_once()
+        finally:
+            # Restore original function
+            requests.get = original_get
 
-    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
-    def test_check_address_success_serving_area(self, mock_template_response, mock_requests_get):
+    def test_check_address_success_serving_area(self, mock_template_response):
         """Test successful address check with a serving area match result."""
         # --- Arrange ---
         test_address = MockForm("2 Area St")
@@ -113,21 +121,29 @@ class TestCheckAddressFunction(unittest.TestCase):
         }
         mock_details_response.raise_for_status = MagicMock()
 
-        # Setup mock responses
-        mock_requests_get.side_effect = [mock_addr_response, mock_details_response]
+        # Create a mock for requests.get and apply it at module level
+        mock_get = MagicMock(side_effect=[mock_addr_response, mock_details_response])
         
-        # --- Act ---
-        async def test_coro():
-            return await check_address(request=mock_request, address=test_address)
-        self._run_async(test_coro())
+        # Apply patches directly to the module
+        import requests
+        original_get = requests.get
+        requests.get = mock_get
         
-        # --- Assert ---
-        self.assertEqual(mock_requests_get.call_count, 2)
-        mock_template_response.assert_called_once()
+        try:
+            # --- Act ---
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address)
+            result = self._run_async(test_coro())
+            
+            # --- Assert ---
+            self.assertEqual(mock_get.call_count, 2)
+            mock_template_response.assert_called_once()
+        finally:
+            # Restore original function
+            requests.get = original_get
 
-    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
-    def test_check_address_no_valid_suggestions(self, mock_template_response, mock_requests_get):
+    def test_check_address_no_valid_suggestions(self, mock_template_response):
         """Test address check when autocomplete returns no valid suggestions."""
         # --- Arrange ---
         test_address = MockForm("No Such Place")
@@ -140,41 +156,58 @@ class TestCheckAddressFunction(unittest.TestCase):
         }
         mock_addr_response.raise_for_status = MagicMock()
 
-        # Setup mock response
-        mock_requests_get.return_value = mock_addr_response
+        # Create a mock for requests.get
+        mock_get = MagicMock(return_value=mock_addr_response)
         
-        # --- Act ---
-        async def test_coro():
-            return await check_address(request=mock_request, address=test_address)
-        self._run_async(test_coro())
+        # Apply patch directly to the module
+        import requests
+        original_get = requests.get
+        requests.get = mock_get
         
-        # --- Assert ---
-        mock_requests_get.assert_called_once() # Only address API should be called
-        mock_template_response.assert_called_once()
+        try:
+            # --- Act ---
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address)
+            result = self._run_async(test_coro())
+            
+            # --- Assert ---
+            mock_get.assert_called_once() # Only address API should be called
+            self.assertTrue("autocomplete" in mock_get.call_args[0][0]) # Check it was autocomplete URL
+            mock_template_response.assert_called_once()
+        finally:
+            # Restore original function
+            requests.get = original_get
 
-    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
-    def test_check_address_api_error(self, mock_template_response, mock_requests_get):
+    def test_check_address_api_error(self, mock_template_response):
         """Test address check when an API call raises an exception."""
         # --- Arrange ---
         test_address = MockForm("Error Prone Address")
         mock_request = MockRequest()
 
-        # Setup mock to raise exception
-        mock_requests_get.side_effect = Exception("Network Error")
+        # Create a mock for requests.get that raises an exception
+        mock_get = MagicMock(side_effect=Exception("Network Error"))
         
-        # --- Act ---
-        async def test_coro():
-            return await check_address(request=mock_request, address=test_address)
-        self._run_async(test_coro())
+        # Apply patch directly to the module
+        import requests
+        original_get = requests.get
+        requests.get = mock_get
         
-        # --- Assert ---
-        mock_requests_get.assert_called_once() # Called once before exception
-        mock_template_response.assert_called_once()
+        try:
+            # --- Act ---
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address)
+            result = self._run_async(test_coro())
+            
+            # --- Assert ---
+            mock_get.assert_called_once() # Called once before exception
+            mock_template_response.assert_called_once()
+        finally:
+            # Restore original function
+            requests.get = original_get
 
-    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
-    def test_check_address_direct_loc_id_success(self, mock_template_response, mock_requests_get):
+    def test_check_address_direct_loc_id_success(self, mock_template_response):
         """Test successful check using a direct LOC ID."""
         # --- Arrange ---
         test_loc_id = MockForm("LOC987654")
@@ -195,25 +228,33 @@ class TestCheckAddressFunction(unittest.TestCase):
         }
         mock_details_response.raise_for_status = MagicMock()
 
-        # Setup mock response
-        mock_requests_get.return_value = mock_details_response
+        # Create a mock for requests.get
+        mock_get = MagicMock(return_value=mock_details_response)
         
-        # --- Act ---
-        async def test_coro():
-            return await check_address(request=mock_request, address=test_loc_id)
-        self._run_async(test_coro())
+        # Apply patch directly to the module
+        import requests
+        original_get = requests.get
+        requests.get = mock_get
         
-        # --- Assert ---
-        self.assertEqual(mock_requests_get.call_count, 1)
-        mock_requests_get.assert_called_once_with(
-            f"https://places.nbnco.net.au/places/v2/details/{test_loc_id}",
-            headers=ANY
-        )
-        mock_template_response.assert_called_once()
+        try:
+            # --- Act ---
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_loc_id)
+            result = self._run_async(test_coro())
+            
+            # --- Assert ---
+            self.assertEqual(mock_get.call_count, 1)
+            mock_get.assert_called_once_with(
+                f"https://places.nbnco.net.au/places/v2/details/{test_loc_id}",
+                headers=ANY
+            )
+            mock_template_response.assert_called_once()
+        finally:
+            # Restore original function
+            requests.get = original_get
 
-    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
-    def test_check_address_direct_loc_id_not_found(self, mock_template_response, mock_requests_get):
+    def test_check_address_direct_loc_id_not_found(self, mock_template_response):
         """Test check using a direct LOC ID that is not found (API error)."""
         # --- Arrange ---
         test_loc_id = MockForm("LOC000000")
@@ -223,24 +264,33 @@ class TestCheckAddressFunction(unittest.TestCase):
         mock_details_response = MagicMock()
         mock_details_response.raise_for_status.side_effect = Exception("404 Client Error: Not Found")
 
-        # Setup mock response
-        mock_requests_get.return_value = mock_details_response
+        # Create a mock for requests.get
+        mock_get = MagicMock(return_value=mock_details_response)
         
-        # --- Act ---
-        async def test_coro():
-            return await check_address(request=mock_request, address=test_loc_id)
-        self._run_async(test_coro())
+        # Apply patch directly to the module
+        import requests
+        original_get = requests.get
+        requests.get = mock_get
         
-        # --- Assert ---
-        mock_requests_get.assert_called_once_with(
-            f"https://places.nbnco.net.au/places/v2/details/{test_loc_id}",
-            headers=ANY
-        )
-        mock_template_response.assert_called_once()
+        try:
+            # --- Act ---
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_loc_id)
+            result = self._run_async(test_coro())
+            
+            # --- Assert ---
+            self.assertEqual(mock_get.call_count, 1)
+            mock_get.assert_called_once_with(
+                f"https://places.nbnco.net.au/places/v2/details/{test_loc_id}",
+                headers=ANY
+            )
+            mock_template_response.assert_called_once()
+        finally:
+            # Restore original function
+            requests.get = original_get
 
-    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
-    def test_check_address_direct_loc_id_serving_area(self, mock_template_response, mock_requests_get):
+    def test_check_address_direct_loc_id_serving_area(self, mock_template_response):
         """Test direct LOC ID check returning only serving area (less common but possible)."""
         # --- Arrange ---
         test_loc_id = MockForm("LOC111222")
@@ -252,21 +302,29 @@ class TestCheckAddressFunction(unittest.TestCase):
         }
         mock_details_response.raise_for_status = MagicMock()
 
-        # Setup mock response
-        mock_requests_get.return_value = mock_details_response
+        # Create a mock for requests.get
+        mock_get = MagicMock(return_value=mock_details_response)
         
-        # --- Act ---
-        async def test_coro():
-            return await check_address(request=mock_request, address=test_loc_id)
-        self._run_async(test_coro())
+        # Apply patch directly to the module
+        import requests
+        original_get = requests.get
+        requests.get = mock_get
         
-        # --- Assert ---
-        mock_requests_get.assert_called_once()
-        mock_template_response.assert_called_once()
+        try:
+            # --- Act ---
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_loc_id)
+            result = self._run_async(test_coro())
+            
+            # --- Assert ---
+            mock_get.assert_called_once()
+            mock_template_response.assert_called_once()
+        finally:
+            # Restore original function
+            requests.get = original_get
 
-    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
-    def test_check_address_multiple_suggestions_returned(self, mock_template_response, mock_requests_get):
+    def test_check_address_multiple_suggestions_returned(self, mock_template_response):
         """Test address check when autocomplete returns multiple valid suggestions."""
         # --- Arrange ---
         test_address = MockForm("Multi Unit St")
@@ -282,22 +340,30 @@ class TestCheckAddressFunction(unittest.TestCase):
         mock_addr_response.json.return_value = {"suggestions": mock_suggestions}
         mock_addr_response.raise_for_status = MagicMock()
 
-        # Setup mock response
-        mock_requests_get.return_value = mock_addr_response
+        # Create a mock for requests.get
+        mock_get = MagicMock(return_value=mock_addr_response)
         
-        # --- Act ---
-        async def test_coro():
-            return await check_address(request=mock_request, address=test_address, loc_id_selected=None)
-        self._run_async(test_coro())
+        # Apply patch directly to the module
+        import requests
+        original_get = requests.get
+        requests.get = mock_get
         
-        # --- Assert ---
-        mock_requests_get.assert_called_once() # Only address API should be called
-        self.assertTrue("autocomplete" in mock_requests_get.call_args[0][0]) # Check it was autocomplete URL
-        mock_template_response.assert_called_once()
+        try:
+            # --- Act ---
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address, loc_id_selected=None)
+            result = self._run_async(test_coro())
+            
+            # --- Assert ---
+            mock_get.assert_called_once() # Only address API should be called
+            self.assertTrue("autocomplete" in mock_get.call_args[0][0]) # Check it was autocomplete URL
+            mock_template_response.assert_called_once()
+        finally:
+            # Restore original function
+            requests.get = original_get
 
-    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
-    def test_check_address_suggestion_selected(self, mock_template_response, mock_requests_get):
+    def test_check_address_suggestion_selected(self, mock_template_response):
         """Test check_address when a loc_id is submitted via loc_id_selected."""
         # --- Arrange ---
         original_address_search = MockForm("Multi Unit St") # The term user initially searched for
@@ -319,31 +385,40 @@ class TestCheckAddressFunction(unittest.TestCase):
         mock_details_response.json.return_value = mock_details_json
         mock_details_response.raise_for_status = MagicMock()
 
-        # Setup mock response
-        mock_requests_get.return_value = mock_details_response
+        # Create a mock for requests.get
+        mock_get = MagicMock(return_value=mock_details_response)
         
-        # --- Act ---
-        async def test_coro():
-            return await check_address(request=mock_request, address=original_address_search, loc_id_selected=selected_loc_id)
-        self._run_async(test_coro())
+        # Apply patch directly to the module
+        import requests
+        original_get = requests.get
+        requests.get = mock_get
         
-        # --- Assert ---
-        mock_requests_get.assert_called_once_with(
-            f"https://places.nbnco.net.au/places/v2/details/{selected_loc_id.value}",
-            headers=ANY
-        )
-        # Verify the template was called with the expected data
-        expected_loc_details = {
-            "exactMatch": True, "locID": "LOC222", "techType": "FTTC",
-            "serviceStatus": "Serviceable", "statusMessage": "Ready",
-            "coatChangeReason": "", "patChangeDate": ""
-        }
-        self.assertTrue(any(
-            call[0][0] == "index.html" and 
-            call[0][1].get("results") and
-            call[0][1]["results"].get("loc_details") == expected_loc_details
-            for call in mock_template_response.call_args_list
-        ))
+        try:
+            # --- Act ---
+            async def test_coro():
+                return await check_address(request=mock_request, address=original_address_search, loc_id_selected=selected_loc_id)
+            result = self._run_async(test_coro())
+            
+            # --- Assert ---
+            mock_get.assert_called_once_with(
+                f"https://places.nbnco.net.au/places/v2/details/{selected_loc_id.value}",
+                headers=ANY
+            )
+            # Verify the template was called with the expected data
+            expected_loc_details = {
+                "exactMatch": True, "locID": "LOC222", "techType": "FTTC",
+                "serviceStatus": "Serviceable", "statusMessage": "Ready",
+                "coatChangeReason": "", "patChangeDate": ""
+            }
+            self.assertTrue(any(
+                call[0][0] == "index.html" and 
+                call[0][1].get("results") and
+                call[0][1]["results"].get("loc_details") == expected_loc_details
+                for call in mock_template_response.call_args_list
+            ))
+        finally:
+            # Restore original function
+            requests.get = original_get
 
 if __name__ == '__main__':
     unittest.main()
