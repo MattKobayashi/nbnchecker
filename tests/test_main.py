@@ -38,11 +38,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         
     def _run_async(self, coro):
         """Helper function to run async functions in tests."""
-        # Convert MockForm objects to strings in the coroutine itself
-        if isinstance(coro, asyncio.coroutines._CoroutineWrapper):
-            # Extract the original function and arguments
-            # This is a simplification - in practice, we're just running the coroutine
-            pass
+        # Simplify to just run the coroutine without trying to inspect its type
         return asyncio.run(coro)
 
     @patch('main.templates.TemplateResponse')
@@ -87,7 +83,9 @@ class TestCheckAddressFunction(unittest.TestCase):
         
         try:
             # --- Act ---
-            self._run_async(check_address(request=mock_request, address=test_address))
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address)
+            self._run_async(test_coro())
             
             # --- Assert ---
             self.assertEqual(mock_get.call_count, 2)
@@ -135,7 +133,9 @@ class TestCheckAddressFunction(unittest.TestCase):
         
         try:
             # --- Act ---
-            self._run_async(check_address(request=mock_request, address=test_address))
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address)
+            self._run_async(test_coro())
             
             # --- Assert ---
             self.assertEqual(mock_get.call_count, 2)
@@ -169,7 +169,9 @@ class TestCheckAddressFunction(unittest.TestCase):
         
         try:
             # --- Act ---
-            self._run_async(check_address(request=mock_request, address=test_address))
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address)
+            self._run_async(test_coro())
             
             # --- Assert ---
             mock_get.assert_called_once() # Only address API should be called
@@ -196,7 +198,9 @@ class TestCheckAddressFunction(unittest.TestCase):
         
         try:
             # --- Act ---
-            self._run_async(check_address(request=mock_request, address=test_address))
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address)
+            self._run_async(test_coro())
             
             # --- Assert ---
             mock_get.assert_called_once() # Called once before exception
@@ -238,7 +242,9 @@ class TestCheckAddressFunction(unittest.TestCase):
         
         try:
             # --- Act ---
-            self._run_async(check_address(request=mock_request, address=test_loc_id))
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_loc_id)
+            self._run_async(test_coro())
             
             # --- Assert ---
             self.assertEqual(mock_get.call_count, 1)
@@ -273,7 +279,9 @@ class TestCheckAddressFunction(unittest.TestCase):
         
         try:
             # --- Act ---
-            self._run_async(check_address(request=mock_request, address=test_loc_id))
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_loc_id)
+            self._run_async(test_coro())
             
             # --- Assert ---
             mock_get.assert_called_once_with(
@@ -309,7 +317,9 @@ class TestCheckAddressFunction(unittest.TestCase):
         
         try:
             # --- Act ---
-            self._run_async(check_address(request=mock_request, address=test_loc_id))
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_loc_id)
+            self._run_async(test_coro())
             
             # --- Assert ---
             mock_get.assert_called_once()
@@ -346,7 +356,9 @@ class TestCheckAddressFunction(unittest.TestCase):
         
         try:
             # --- Act ---
-            self._run_async(check_address(request=mock_request, address=test_address, loc_id_selected=None))
+            async def test_coro():
+                return await check_address(request=mock_request, address=test_address, loc_id_selected=None)
+            self._run_async(test_coro())
             
             # --- Assert ---
             mock_get.assert_called_once() # Only address API should be called
@@ -390,7 +402,9 @@ class TestCheckAddressFunction(unittest.TestCase):
         
         try:
             # --- Act ---
-            self._run_async(check_address(request=mock_request, address=original_address_search, loc_id_selected=selected_loc_id))
+            async def test_coro():
+                return await check_address(request=mock_request, address=original_address_search, loc_id_selected=selected_loc_id)
+            self._run_async(test_coro())
             
             # --- Assert ---
             mock_get.assert_called_once_with(
