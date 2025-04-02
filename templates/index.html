@@ -22,7 +22,25 @@
                 {{ error_message }}
             </div>
         {% endif %}
-        {% if results %}
+        {% if suggestions_list %}
+            <div class="alert alert-info" role="alert">
+                Multiple possible matches found for "<strong>{{ address_input }}</strong>". Please select the correct address:
+            </div>
+            <div class="list-group mb-4">
+                {% for suggestion in suggestions_list %}
+                    {# Each suggestion is a mini-form submitting the chosen LOC ID #}
+                    <form action="/" method="post" class="list-group-item list-group-item-action p-0 m-0 border-0">
+                        {# Hidden inputs to pass back the chosen LOC ID and original search term #}
+                        <input type="hidden" name="loc_id_selected" value="{{ suggestion.id }}">
+                        <input type="hidden" name="address" value="{{ address_input }}">
+                        {# Style the button to look like a list item link #}
+                        <button type="submit" class="btn btn-link text-start w-100 p-2 text-decoration-none">
+                            {{ suggestion.formattedAddress }} <small class="text-muted">({{ suggestion.id }})</small>
+                        </button>
+                    </form>
+                {% endfor %}
+            </div>
+        {% elif results %}
             <h2>Results</h2>
             <p><strong>Selected Address:</strong> {{ results.selectedAddress }}</p>
             {% if results.loc_details.exactMatch %}

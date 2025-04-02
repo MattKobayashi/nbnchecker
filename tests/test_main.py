@@ -73,7 +73,8 @@ class TestCheckAddressFunction(unittest.TestCase):
             "request": mock_request,
             "address_input": test_address,
             "error_message": None,
-            "results": expected_results
+            "results": expected_results,
+            "suggestions_list": None
         }
 
         # --- Act ---
@@ -283,6 +284,138 @@ class TestCheckAddressFunction(unittest.TestCase):
     @patch('main.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_direct_loc_id_serving_area(self, mock_template_response, mock_requests_get):
+        """Test direct LOC ID check returning only serving area (less common but possible)."""
+        # --- Arrange ---
+        test_loc_id = "LOC111222"
+        mock_request = MockRequest()
+
+        mock_details_response = MagicMock()
+        mock_details_response.json.return_value = {
+            "servingArea": {"csaId": "CSA999", "techType": "Satellite"}
+        }
+        mock_details_response.raise_for_status = MagicMock()
+
+        mock_requests_get.return_value = mock_details_response
+
+        expected_loc_details = {"exactMatch": False, "csaID": "CSA999", "techType": "Satellite"}
+        expected_results = {
+            "selectedAddress": f"Direct Lookup for {test_loc_id}",
+            "loc_details": expected_loc_details,
+            "address_raw_json": None,
+            "details_raw_json": json.dumps(mock_details_response.json.return_value, indent=2)
+        }
+        expected_context = {
+            "request": mock_request, "address_input": test_loc_id,
+            "error_message": None, "results": expected_results,
+            "suggestions_list": None
+        }
+
+        # --- Act ---
+        self._run_async(check_address(request=mock_request, address=test_loc_id))
+
+        # --- Assert ---
+        mock_requests_get.assert_called_once()
+        mock_template_response.assert_called_once_with("index.html", expected_context)
+
+    @patch('main.get')
+    @patch('main.templates.TemplateResponse')
+    def test_check_address_multiple_suggestions_returned(self, mock_template_response, mock_requests_get):
+        """Test address check when autocomplete returns multiple valid suggestions."""
+        # --- Arrange ---
+        test_address = "Multi Unit St"
+        mock_request = MockRequest()
+
+        mock_addr_response = MagicMock()
+        mock_suggestions = [
+            {"id": "LOC111", "formattedAddress": "1/1 Multi Unit St, SUBURB"},
+            {"id": "LOC222", "formattedAddress": "2/1 Multi Unit St, SUBURB"},
+            {"id": "INVALID3", "formattedAddress": "Invalid ID"}, # Should be filtered out
+            {"id": "LOC333", "formattedAddress": "3/1 Multi Unit St, SUBURB"}
+        ]
+        mock_addr_response.json.return_value = {"suggestions": mock_suggestions}
+        mock_addr_response.raise_for_status = MagicMock()
+
+        mock_requests_get.return_value = mock_addr_response # Only autocomplete call expected
+
+        expected_valid_suggestions = [
+            {"id": "LOC111", "formattedAddress": "1/1 Multi Unit St, SUBURB"},
+            {"id": "LOC222", "formattedAddress": "2/1 Multi Unit St, SUBURB"},
+            {"id": "LOC333", "formattedAddress": "3/1 Multi Unit St, SUBURB"}
+        ]
+        expected_context = {
+            "request": mock_request,
+            "address_input": test_address,
+            "error_message": None,
+            "results": None, # No results yet, showing suggestions
+            "suggestions_list": expected_valid_suggestions # List of valid suggestions
+        }
+
+        # --- Act ---
+        # Call check_address with address only (no loc_id_selected)
+        self._run_async(check_address(request=mock_request, address=test_address, loc_id_selected=None))
+
+        # --- Assert ---
+        mock_requests_get.assert_called_once() # Only address API should be called
+        self.assertTrue("autocomplete" in mock_requests_get.call_args[0][0]) # Check it was autocomplete URL
+        mock_template_response.assert_called_once_with("index.html", expected_context)
+
+    @patch('main.get')
+    @patch('main.templates.TemplateResponse')
+    def test_check_address_suggestion_selected(self, mock_template_response, mock_requests_get):
+        """Test check_address when a loc_id is submitted via loc_id_selected."""
+        # --- Arrange ---
+        original_address_search = "Multi Unit St" # The term user initially searched for
+        selected_loc_id = "LOC222" # The LOC ID the user selected from the list
+        mock_request = MockRequest()
+
+        # Mock response for details API (autocomplete is skipped)
+        mock_details_response = MagicMock()
+        mock_details_json = {
+            "addressDetail": {
+                "id": "LOC222",
+                "formattedAddress": "2/1 Multi Unit St, SUBURB", # Actual address from details
+                "techType": "FTTC",
+                "serviceStatus": "Serviceable",
+                "statusMessage": "Ready",
+                "coatChangeReason": "", "patChangeDate": ""
+            }
+        }
+        mock_details_response.json.return_value = mock_details_json
+        mock_details_response.raise_for_status = MagicMock()
+
+        mock_requests_get.return_value = mock_details_response # Only details call expected
+
+        # Expected context
+        expected_loc_details = {
+            "exactMatch": True, "locID": "LOC222", "techType": "FTTC",
+            "serviceStatus": "Serviceable", "statusMessage": "Ready",
+            "coatChangeReason": "", "patChangeDate": ""
+        }
+        expected_results = {
+            # Note: selectedAddress comes from details response now
+            "selectedAddress": "2/1 Multi Unit St, SUBURB",
+            "loc_details": expected_loc_details,
+            "address_raw_json": None, # Autocomplete was skipped
+            "details_raw_json": json.dumps(mock_details_json, indent=2)
+        }
+        expected_context = {
+            "request": mock_request,
+            "address_input": original_address_search, # Should retain original search term in input box
+            "error_message": None,
+            "results": expected_results,
+            "suggestions_list": None # No suggestions list when showing results
+        }
+
+        # --- Act ---
+        # Call check_address simulating form submission after selection
+        self._run_async(check_address(request=mock_request, address=original_address_search, loc_id_selected=selected_loc_id))
+
+        # --- Assert ---
+        mock_requests_get.assert_called_once_with(
+            f"https://places.nbnco.net.au/places/v2/details/{selected_loc_id}",
+            headers=ANY
+        )
+        mock_template_response.assert_called_once_with("index.html", expected_context)
         """Test direct LOC ID check returning only serving area (less common but possible)."""
         # --- Arrange ---
         test_loc_id = "LOC111222"
