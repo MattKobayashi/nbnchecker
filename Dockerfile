@@ -18,7 +18,6 @@ RUN apk --no-cache add uv \
       --uid "$UID" \
       $USERNAME \
     && chown -R ${UID}:${GID} /opt/${USERNAME}
-COPY --chmod=755 --chown=${UID}:${GID} api.py api.py
 COPY --chmod=644 --chown=${UID}:${GID} main.py main.py
 COPY --chmod=644 --chown=${UID}:${GID} pyproject.toml pyproject.toml
 COPY --chmod=644 --chown=${UID}:${GID} templates/ templates/
