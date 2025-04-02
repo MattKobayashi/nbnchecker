@@ -40,7 +40,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         """Helper function to run async functions in tests."""
         return asyncio.run(coro)
 
-    @patch('main.requests.get')
+    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_success_exact_match(self, mock_template_response, mock_requests_get):
         """Test successful address check with an exact match result."""
@@ -92,7 +92,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         )
         mock_template_response.assert_called_once()
 
-    @patch('main.requests.get')
+    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_success_serving_area(self, mock_template_response, mock_requests_get):
         """Test successful address check with a serving area match result."""
@@ -125,7 +125,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         self.assertEqual(mock_requests_get.call_count, 2)
         mock_template_response.assert_called_once()
 
-    @patch('main.requests.get')
+    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_no_valid_suggestions(self, mock_template_response, mock_requests_get):
         """Test address check when autocomplete returns no valid suggestions."""
@@ -152,7 +152,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         mock_requests_get.assert_called_once() # Only address API should be called
         mock_template_response.assert_called_once()
 
-    @patch('main.requests.get')
+    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_api_error(self, mock_template_response, mock_requests_get):
         """Test address check when an API call raises an exception."""
@@ -172,7 +172,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         mock_requests_get.assert_called_once() # Called once before exception
         mock_template_response.assert_called_once()
 
-    @patch('main.requests.get')
+    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_direct_loc_id_success(self, mock_template_response, mock_requests_get):
         """Test successful check using a direct LOC ID."""
@@ -211,7 +211,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         )
         mock_template_response.assert_called_once()
 
-    @patch('main.requests.get')
+    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_direct_loc_id_not_found(self, mock_template_response, mock_requests_get):
         """Test check using a direct LOC ID that is not found (API error)."""
@@ -238,7 +238,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         )
         mock_template_response.assert_called_once()
 
-    @patch('main.requests.get')
+    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_direct_loc_id_serving_area(self, mock_template_response, mock_requests_get):
         """Test direct LOC ID check returning only serving area (less common but possible)."""
@@ -264,7 +264,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         mock_requests_get.assert_called_once()
         mock_template_response.assert_called_once()
 
-    @patch('main.requests.get')
+    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_multiple_suggestions_returned(self, mock_template_response, mock_requests_get):
         """Test address check when autocomplete returns multiple valid suggestions."""
@@ -295,7 +295,7 @@ class TestCheckAddressFunction(unittest.TestCase):
         self.assertTrue("autocomplete" in mock_requests_get.call_args[0][0]) # Check it was autocomplete URL
         mock_template_response.assert_called_once()
 
-    @patch('main.requests.get')
+    @patch('requests.get')
     @patch('main.templates.TemplateResponse')
     def test_check_address_suggestion_selected(self, mock_template_response, mock_requests_get):
         """Test check_address when a loc_id is submitted via loc_id_selected."""
