@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.1.0...v1.2.0) (2025-04-02)
+
+
+### Features
+
+* Allow searching by LOC ID directly ([#21](https://github.com/MattKobayashi/nbnchecker/issues/21)) ([eaf469b](https://github.com/MattKobayashi/nbnchecker/commit/eaf469b2877cfcf022d6c2067de52b8ef9a08bbf))
+
 ## [1.1.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.0.1...v1.1.0) (2025-04-02)
 
 
