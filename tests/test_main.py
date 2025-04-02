@@ -47,13 +47,15 @@ class TestCheckAddressFunction(unittest.TestCase):
         Args:
             responses: Dict mapping URL patterns to response objects 
         Returns:
-            Tuple of (call_tracker, original_get) for cleanup
+            Mock object with call tracking
         """
-        calls = []
+        # Create a mock for requests.get
+        mock_get = MagicMock()
         
-        # Create a function that will replace requests.get
-        def mock_requests_get(url, headers=None, **kwargs):
-            calls.append((url, headers))
+        # Function to find the correct response based on URL pattern
+        def side_effect(url, headers=None, **kwargs):
+            # Log the call
+            mock_get.call_args_list.append(((url, headers), kwargs))
             
             # Find matching response based on URL
             if responses:
@@ -67,12 +69,10 @@ class TestCheckAddressFunction(unittest.TestCase):
             mock_response.raise_for_status = MagicMock()
             return mock_response
         
-        # Save original and apply mock
-        import requests
-        original_get = requests.get
-        requests.get = mock_requests_get
+        # Set the side effect to use our custom function
+        mock_get.side_effect = side_effect
         
-        return calls, original_get
+        return mock_get
 
     @patch('main.templates.TemplateResponse')
     def test_check_address_success_exact_match(self, mock_template_response):
@@ -110,23 +110,22 @@ class TestCheckAddressFunction(unittest.TestCase):
             "autocomplete": mock_addr_response,
             "details": mock_details_response
         }
-        calls, original_get = self._setup_mock_requests(responses)
         
-        try:
+        # Create our mock and configure its side effect
+        mock_get = self._setup_mock_requests(responses)
+        
+        # Use patch as a context manager to ensure it's applied correctly
+        with patch('requests.get', mock_get):
             # --- Act ---
             async def test_coro():
                 return await check_address(request=mock_request, address=test_address)
             result = self._run_async(test_coro())
             
             # --- Assert ---
-            self.assertEqual(len(calls), 2)
-            self.assertTrue(any("autocomplete" in url for url, _ in calls))
-            self.assertTrue(any("details" in url for url, _ in calls))
+            self.assertEqual(len(mock_get.call_args_list), 2)
+            self.assertTrue(any("autocomplete" in args[0][0] for args in mock_get.call_args_list))
+            self.assertTrue(any("details" in args[0][0] for args in mock_get.call_args_list))
             mock_template_response.assert_called_once()
-        finally:
-            # Restore original function
-            import requests
-            requests.get = original_get
 
     @patch('main.templates.TemplateResponse')
     def test_check_address_success_serving_area(self, mock_template_response):
@@ -153,23 +152,22 @@ class TestCheckAddressFunction(unittest.TestCase):
             "autocomplete": mock_addr_response,
             "details": mock_details_response
         }
-        calls, original_get = self._setup_mock_requests(responses)
         
-        try:
+        # Create our mock and configure its side effect
+        mock_get = self._setup_mock_requests(responses)
+        
+        # Use patch as a context manager to ensure it's applied correctly
+        with patch('requests.get', mock_get):
             # --- Act ---
             async def test_coro():
                 return await check_address(request=mock_request, address=test_address)
             result = self._run_async(test_coro())
             
             # --- Assert ---
-            self.assertEqual(len(calls), 2)
-            self.assertTrue(any("autocomplete" in url for url, _ in calls))
-            self.assertTrue(any("details" in url for url, _ in calls))
+            self.assertEqual(len(mock_get.call_args_list), 2)
+            self.assertTrue(any("autocomplete" in args[0][0] for args in mock_get.call_args_list))
+            self.assertTrue(any("details" in args[0][0] for args in mock_get.call_args_list))
             mock_template_response.assert_called_once()
-        finally:
-            # Restore original function
-            import requests
-            requests.get = original_get
 
     @patch('main.templates.TemplateResponse')
     def test_check_address_no_valid_suggestions(self, mock_template_response):
@@ -187,22 +185,21 @@ class TestCheckAddressFunction(unittest.TestCase):
 
         # Set up mock with expected responses
         responses = {"autocomplete": mock_addr_response}
-        calls, original_get = self._setup_mock_requests(responses)
         
-        try:
+        # Create our mock and configure its side effect
+        mock_get = self._setup_mock_requests(responses)
+        
+        # Use patch as a context manager to ensure it's applied correctly
+        with patch('requests.get', mock_get):
             # --- Act ---
             async def test_coro():
                 return await check_address(request=mock_request, address=test_address)
             result = self._run_async(test_coro())
             
             # --- Assert ---
-            self.assertEqual(len(calls), 1) # Only address API should be called
-            self.assertTrue(any("autocomplete" in url for url, _ in calls))
+            self.assertEqual(len(mock_get.call_args_list), 1) # Only address API should be called
+            self.assertTrue(any("autocomplete" in args[0][0] for args in mock_get.call_args_list))
             mock_template_response.assert_called_once()
-        finally:
-            # Restore original function
-            import requests
-            requests.get = original_get
 
     @patch('main.templates.TemplateResponse')
     def test_check_address_api_error(self, mock_template_response):
@@ -211,27 +208,19 @@ class TestCheckAddressFunction(unittest.TestCase):
         test_address = MockForm("Error Prone Address")
         mock_request = MockRequest()
 
-        # Create a custom mock function that raises an exception
-        def mock_requests_get_with_error(url, headers=None, **kwargs):
-            raise Exception("Network Error")
-            
-        # Apply patch directly to the module
-        import requests
-        original_get = requests.get
-        requests.get = mock_requests_get_with_error
+        # Create a mock that raises an exception
+        mock_get = MagicMock()
+        mock_get.side_effect = Exception("Network Error")
         
-        try:
+        # Use patch as a context manager
+        with patch('requests.get', mock_get):
             # --- Act ---
             async def test_coro():
                 return await check_address(request=mock_request, address=test_address)
             result = self._run_async(test_coro())
             
             # --- Assert ---
-            # No need to assert call count since we're not tracking calls in this test
             mock_template_response.assert_called_once()
-        finally:
-            # Restore original function
-            requests.get = original_get
 
     @patch('main.templates.TemplateResponse')
     def test_check_address_direct_loc_id_success(self, mock_template_response):
@@ -257,22 +246,21 @@ class TestCheckAddressFunction(unittest.TestCase):
 
         # Set up mock with expected responses
         responses = {"details": mock_details_response}
-        calls, original_get = self._setup_mock_requests(responses)
         
-        try:
+        # Create our mock and configure its side effect
+        mock_get = self._setup_mock_requests(responses)
+        
+        # Use patch as a context manager to ensure it's applied correctly
+        with patch('requests.get', mock_get):
             # --- Act ---
             async def test_coro():
                 return await check_address(request=mock_request, address=test_loc_id)
             result = self._run_async(test_coro())
             
             # --- Assert ---
-            self.assertEqual(len(calls), 1)
-            self.assertTrue(any(f"details/{test_loc_id}" in url for url, _ in calls))
+            self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertTrue(any(f"details/{test_loc_id}" in args[0][0] for args in mock_get.call_args_list))
             mock_template_response.assert_called_once()
-        finally:
-            # Restore original function
-            import requests
-            requests.get = original_get
 
     @patch('main.templates.TemplateResponse')
     def test_check_address_direct_loc_id_not_found(self, mock_template_response):
@@ -287,22 +275,21 @@ class TestCheckAddressFunction(unittest.TestCase):
 
         # Set up mock with expected responses
         responses = {"details": mock_details_response}
-        calls, original_get = self._setup_mock_requests(responses)
         
-        try:
+        # Create our mock and configure its side effect
+        mock_get = self._setup_mock_requests(responses)
+        
+        # Use patch as a context manager to ensure it's applied correctly
+        with patch('requests.get', mock_get):
             # --- Act ---
             async def test_coro():
                 return await check_address(request=mock_request, address=test_loc_id)
             result = self._run_async(test_coro())
             
             # --- Assert ---
-            self.assertEqual(len(calls), 1)
-            self.assertTrue(any(f"details/{test_loc_id}" in url for url, _ in calls))
+            self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertTrue(any(f"details/{test_loc_id}" in args[0][0] for args in mock_get.call_args_list))
             mock_template_response.assert_called_once()
-        finally:
-            # Restore original function
-            import requests
-            requests.get = original_get
 
     @patch('main.templates.TemplateResponse')
     def test_check_address_direct_loc_id_serving_area(self, mock_template_response):
@@ -319,22 +306,21 @@ class TestCheckAddressFunction(unittest.TestCase):
 
         # Set up mock with expected responses
         responses = {"details": mock_details_response}
-        calls, original_get = self._setup_mock_requests(responses)
         
-        try:
+        # Create our mock and configure its side effect
+        mock_get = self._setup_mock_requests(responses)
+        
+        # Use patch as a context manager to ensure it's applied correctly
+        with patch('requests.get', mock_get):
             # --- Act ---
             async def test_coro():
                 return await check_address(request=mock_request, address=test_loc_id)
             result = self._run_async(test_coro())
             
             # --- Assert ---
-            self.assertEqual(len(calls), 1)
-            self.assertTrue(any(f"details/{test_loc_id}" in url for url, _ in calls))
+            self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertTrue(any(f"details/{test_loc_id}" in args[0][0] for args in mock_get.call_args_list))
             mock_template_response.assert_called_once()
-        finally:
-            # Restore original function
-            import requests
-            requests.get = original_get
 
     @patch('main.templates.TemplateResponse')
     def test_check_address_multiple_suggestions_returned(self, mock_template_response):
@@ -355,22 +341,21 @@ class TestCheckAddressFunction(unittest.TestCase):
 
         # Set up mock with expected responses
         responses = {"autocomplete": mock_addr_response}
-        calls, original_get = self._setup_mock_requests(responses)
         
-        try:
+        # Create our mock and configure its side effect
+        mock_get = self._setup_mock_requests(responses)
+        
+        # Use patch as a context manager to ensure it's applied correctly
+        with patch('requests.get', mock_get):
             # --- Act ---
             async def test_coro():
                 return await check_address(request=mock_request, address=test_address, loc_id_selected=None)
             result = self._run_async(test_coro())
             
             # --- Assert ---
-            self.assertEqual(len(calls), 1) # Only address API should be called
-            self.assertTrue(any("autocomplete" in url for url, _ in calls))
+            self.assertEqual(len(mock_get.call_args_list), 1) # Only address API should be called
+            self.assertTrue(any("autocomplete" in args[0][0] for args in mock_get.call_args_list))
             mock_template_response.assert_called_once()
-        finally:
-            # Restore original function
-            import requests
-            requests.get = original_get
 
     @patch('main.templates.TemplateResponse')
     def test_check_address_suggestion_selected(self, mock_template_response):
@@ -397,17 +382,20 @@ class TestCheckAddressFunction(unittest.TestCase):
 
         # Set up mock with expected responses
         responses = {"details": mock_details_response}
-        calls, original_get = self._setup_mock_requests(responses)
         
-        try:
+        # Create our mock and configure its side effect
+        mock_get = self._setup_mock_requests(responses)
+        
+        # Use patch as a context manager to ensure it's applied correctly
+        with patch('requests.get', mock_get):
             # --- Act ---
             async def test_coro():
                 return await check_address(request=mock_request, address=original_address_search, loc_id_selected=selected_loc_id)
             result = self._run_async(test_coro())
             
             # --- Assert ---
-            self.assertEqual(len(calls), 1)
-            self.assertTrue(any(f"details/{selected_loc_id}" in url for url, _ in calls))
+            self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertTrue(any(f"details/{selected_loc_id}" in args[0][0] for args in mock_get.call_args_list))
             
             # Verify the template was called with the expected data
             expected_loc_details = {
@@ -421,10 +409,6 @@ class TestCheckAddressFunction(unittest.TestCase):
                 call[0][1]["results"].get("loc_details") == expected_loc_details
                 for call in mock_template_response.call_args_list
             ))
-        finally:
-            # Restore original function
-            import requests
-            requests.get = original_get
 
 if __name__ == '__main__':
     unittest.main()
