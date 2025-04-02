@@ -23,7 +23,11 @@ class MockForm:
         self.value = value
     
     def __str__(self):
-        return str(self.value)
+        return str(self.value) if self.value is not None else ""
+    
+    def strip(self):
+        """Mimic the strip() method that FastAPI Form objects expose"""
+        return str(self).strip()
 
 class TestCheckAddressFunction(unittest.TestCase):
 
