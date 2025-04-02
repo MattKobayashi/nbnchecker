@@ -58,7 +58,6 @@ async def check_address(request: Request, address: str = Form(...)):
             if not valid_address_result:
                 error_message = "There are no valid matches for this address. Please check your input and try again."
                 loc_id = None
-        else:
         if loc_id:
             # Step 2: Get location details using the locID
             print(f"Fetching details for LOC ID: {loc_id}")
