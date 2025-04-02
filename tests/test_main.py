@@ -193,5 +193,127 @@ class TestCheckAddressFunction(unittest.TestCase):
         mock_requests_get.assert_called_once() # Called once before exception
         mock_template_response.assert_called_once_with("index.html", expected_context)
 
+    @patch('main.get')
+    @patch('main.templates.TemplateResponse')
+    def test_check_address_direct_loc_id_success(self, mock_template_response, mock_requests_get):
+        """Test successful check using a direct LOC ID."""
+        # --- Arrange ---
+        test_loc_id = "LOC987654"
+        mock_request = MockRequest()
+
+        # Mock response for details API (autocomplete is skipped)
+        mock_details_response = MagicMock()
+        mock_details_response.json.return_value = {
+            "addressDetail": {
+                "id": "LOC987654",
+                "formattedAddress": "1 Direct St, PERTH WA 6000",
+                "techType": "HFC",
+                "serviceStatus": "Serviceable",
+                "statusMessage": "Ready",
+                "coatChangeReason": "",
+                "patChangeDate": ""
+            }
+        }
+        mock_details_response.raise_for_status = MagicMock()
+
+        # Configure mock_requests_get to return only the details response
+        mock_requests_get.return_value = mock_details_response
+
+        # Expected context
+        expected_loc_details = {
+            "exactMatch": True, "locID": "LOC987654", "techType": "HFC",
+            "serviceStatus": "Serviceable", "statusMessage": "Ready",
+            "coatChangeReason": "", "patChangeDate": ""
+        }
+        expected_results = {
+            "selectedAddress": "1 Direct St, PERTH WA 6000",
+            "loc_details": expected_loc_details,
+            "address_raw_json": None,
+            "details_raw_json": json.dumps(mock_details_response.json.return_value, indent=2)
+        }
+        expected_context = {
+            "request": mock_request,
+            "address_input": test_loc_id,
+            "error_message": None,
+            "results": expected_results
+        }
+
+        # --- Act ---
+        self._run_async(check_address(request=mock_request, address=test_loc_id))
+
+        # --- Assert ---
+        mock_requests_get.assert_called_once_with(
+            f"https://places.nbnco.net.au/places/v2/details/{test_loc_id}",
+            headers=ANY
+        )
+        mock_template_response.assert_called_once_with("index.html", expected_context)
+
+    @patch('main.get')
+    @patch('main.templates.TemplateResponse')
+    def test_check_address_direct_loc_id_not_found(self, mock_template_response, mock_requests_get):
+        """Test check using a direct LOC ID that is not found (API error)."""
+        # --- Arrange ---
+        test_loc_id = "LOC000000"
+        mock_request = MockRequest()
+
+        # Mock details API response to raise an error (e.g., 404 Not Found)
+        mock_details_response = MagicMock()
+        mock_details_response.raise_for_status.side_effect = Exception("404 Client Error: Not Found")
+
+        mock_requests_get.return_value = mock_details_response
+
+        # Expected context
+        expected_context = {
+            "request": mock_request,
+            "address_input": test_loc_id,
+            "error_message": f"Failed to retrieve details for {test_loc_id}. It might be invalid or not found. Error: 404 Client Error: Not Found",
+            "results": None
+        }
+
+        # --- Act ---
+        self._run_async(check_address(request=mock_request, address=test_loc_id))
+
+        # --- Assert ---
+        mock_requests_get.assert_called_once_with(
+            f"https://places.nbnco.net.au/places/v2/details/{test_loc_id}",
+            headers=ANY
+        )
+        mock_template_response.assert_called_once_with("index.html", expected_context)
+
+    @patch('main.get')
+    @patch('main.templates.TemplateResponse')
+    def test_check_address_direct_loc_id_serving_area(self, mock_template_response, mock_requests_get):
+        """Test direct LOC ID check returning only serving area (less common but possible)."""
+        # --- Arrange ---
+        test_loc_id = "LOC111222"
+        mock_request = MockRequest()
+
+        mock_details_response = MagicMock()
+        mock_details_response.json.return_value = {
+            "servingArea": {"csaId": "CSA999", "techType": "Satellite"}
+        }
+        mock_details_response.raise_for_status = MagicMock()
+
+        mock_requests_get.return_value = mock_details_response
+
+        expected_loc_details = {"exactMatch": False, "csaID": "CSA999", "techType": "Satellite"}
+        expected_results = {
+            "selectedAddress": f"Direct Lookup for {test_loc_id}",
+            "loc_details": expected_loc_details,
+            "address_raw_json": None,
+            "details_raw_json": json.dumps(mock_details_response.json.return_value, indent=2)
+        }
+        expected_context = {
+            "request": mock_request, "address_input": test_loc_id,
+            "error_message": None, "results": expected_results
+        }
+
+        # --- Act ---
+        self._run_async(check_address(request=mock_request, address=test_loc_id))
+
+        # --- Assert ---
+        mock_requests_get.assert_called_once()
+        mock_template_response.assert_called_once_with("index.html", expected_context)
+
 if __name__ == '__main__':
     unittest.main()

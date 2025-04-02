@@ -11,7 +11,7 @@
         <h1>nbnco Address Service Check</h1>
         <form action="/" method="post" class="mb-4">
             <div class="mb-3">
-                <label for="address" class="form-label">Enter address to check:</label>
+                <label for="address" class="form-label">Enter address or LOC ID to check:</label>
                 <input type="text" class="form-control" id="address" name="address" required value="{{ address_input | default('') }}">
             </div>
             <button type="submit" class="btn btn-primary">Check Address</button>
@@ -73,10 +73,17 @@
             </div>
             <div class="collapse mt-2" id="collapseRawJson">
                 <div class="card card-body">
+                    {% if results.address_raw_json %}
                     <h6>Address Query Raw JSON:</h6>
                     <pre><code>{{ results.address_raw_json }}</code></pre>
                     {% if results.details_raw_json %}
                     <hr>
+                    {% endif %}
+                    {% else %}
+                    <p><em>Address autocomplete query was skipped (Direct LOC ID lookup).</em></p>
+                    {% endif %}
+
+                    {% if results.details_raw_json %}
                     <h6>Location Details Raw JSON:</h6>
                     <pre><code>{{ results.details_raw_json }}</code></pre>
                     {% endif %}
