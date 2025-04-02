@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 import uvicorn
+import json
+from requests import get
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 #from fastapi.staticfiles import StaticFiles
-
-# Import the refactored functions from nbnchecker
-from api import nbnQueryAddress, nbnLocDetails
 
 app = FastAPI()
 
@@ -20,32 +19,73 @@ async def read_root(request: Request):
 
 @app.post("/", response_class=HTMLResponse)
 async def check_address(request: Request, address: str = Form(...)):
-    """Handles form submission, calls NBN checker functions, and renders results."""
+    """Handles form submission, calls NBN APIs directly, and renders results."""
     context = {"request": request, "address_input": address}
     error_message = None
     results_data = None
+    address_raw_json = None
+    details_raw_json = None
 
     try:
-        # Step 1: Query the address
-        address_query_result = nbnQueryAddress(address)
+        # Step 1: Query the address directly
+        address_api_url = f"https://places.nbnco.net.au/places/v1/autocomplete?query={address}"
+        address_response = get(address_api_url, headers={"Referer": "https://www.nbnco.com.au"})
+        address_response.raise_for_status()
+        address_raw_json = address_response.json()
 
-        if not address_query_result["validResult"]:
-            error_message = "There are no matches for this address. Please check your input and try again."
+        loc_id = None
+        selected_address = None
+        valid_address_result = False
+
+        if "suggestions" in address_raw_json and len(address_raw_json["suggestions"]) > 0:
+            first_suggestion = address_raw_json["suggestions"][0]
+            if first_suggestion.get("id", "").startswith("LOC"):
+                loc_id = first_suggestion["id"]
+                selected_address = first_suggestion.get("formattedAddress")
+                valid_address_result = True
+
+        if not valid_address_result:
+            error_message = "There are no valid matches for this address. Please check your input and try again."
         else:
-            # Step 2: Get location details using the locID from the first result
-            loc_id = address_query_result["locID"]
-            loc_details_result = nbnLocDetails(loc_id)
+            # Step 2: Get location details directly using the locID
+            details_api_url = f"https://places.nbnco.net.au/places/v2/details/{loc_id}"
+            details_response = get(details_api_url, headers={"Referer": "https://www.nbnco.com.au"})
+            details_response.raise_for_status()
+            details_raw_json = details_response.json()
 
-            # Prepare results for the template
-            results_data = {
-                "selectedAddress": address_query_result["selectedAddress"],
-                "loc_details": loc_details_result
-            }
+            # Process details_raw_json
+            loc_details_result = {}
+            if "addressDetail" in details_raw_json and "id" in details_raw_json["addressDetail"]:
+                loc_details_result["exactMatch"] = True
+                loc_details_result["locID"] = details_raw_json["addressDetail"]["id"]
+                loc_details_result["techType"] = details_raw_json["addressDetail"].get("techType")
+                loc_details_result["serviceStatus"] = details_raw_json["addressDetail"].get("serviceStatus")
+                loc_details_result["statusMessage"] = details_raw_json["addressDetail"].get("statusMessage", "")
+                loc_details_result["coatChangeReason"] = details_raw_json["addressDetail"].get("coatChangeReason", "")
+                if loc_details_result["coatChangeReason"]:
+                    loc_details_result["patChangeDate"] = details_raw_json["addressDetail"].get("patChangeDate", "")
+                else:
+                    loc_details_result["patChangeDate"] = ""
+            elif "servingArea" in details_raw_json:
+                loc_details_result["exactMatch"] = False
+                loc_details_result["csaID"] = details_raw_json["servingArea"].get("csaId")
+                loc_details_result["techType"] = details_raw_json["servingArea"].get("techType")
+            else:
+                error_message = "Could not retrieve detailed location information."
+                loc_details_result = None
+
+            # Prepare results for the template only if loc_details_result is valid
+            if loc_details_result:
+                results_data = {
+                    "selectedAddress": selected_address,
+                    "loc_details": loc_details_result,
+                    "address_raw_json": json.dumps(address_raw_json, indent=2),
+                    "details_raw_json": json.dumps(details_raw_json, indent=2) if details_raw_json else None
+                }
 
     except Exception as e:
-        # Basic error handling for API calls or other issues
-        print(f"An error occurred: {e}") # Log error to console
-        error_message = "An unexpected error occurred while checking the address."
+        print(f"An error occurred: {e}")  # Log error to console
+        error_message = f"An unexpected error occurred: {e}"
 
     context["error_message"] = error_message
     context["results"] = results_data
