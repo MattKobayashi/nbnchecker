@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.3.0...v1.4.0) (2025-04-02)
+
+
+### Features
+
+* Handle multiple address suggestions from autocomplete ([#25](https://github.com/MattKobayashi/nbnchecker/issues/25)) ([f2a9f1b](https://github.com/MattKobayashi/nbnchecker/commit/f2a9f1ba6a7aa0bb1b561c1b0e80f912f9378c41))
+
 ## [1.3.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.2.0...v1.3.0) (2025-04-02)
 
 
