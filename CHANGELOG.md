@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.0.1...v1.1.0) (2025-04-02)
+
+
+### Features
+
+* Add collapsible raw API response view ([#19](https://github.com/MattKobayashi/nbnchecker/issues/19)) ([1b4ebab](https://github.com/MattKobayashi/nbnchecker/commit/1b4ebab055e4c30c019d0a365fdc31eab43c59d1))
+
 ## [1.0.1](https://github.com/MattKobayashi/nbnchecker/compare/v1.0.0...v1.0.1) (2025-04-01)
 
 
