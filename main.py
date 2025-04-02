@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import uvicorn
 import json
-from requests import get
+import requests
 from fastapi import FastAPI, Request, Form
 from typing import Optional
 from fastapi.responses import HTMLResponse
@@ -60,7 +60,7 @@ async def check_address(request: Request, address: str = Form(...), loc_id_selec
                 # Input is an address, perform autocomplete lookup
                 print(f"Performing address search for: {search_input}")
                 address_api_url = f"https://places.nbnco.net.au/places/v1/autocomplete?query={search_input}"
-                address_response = get(address_api_url, headers={"Referer": "https://www.nbnco.com.au"})
+                address_response = requests.get(address_api_url, headers={"Referer": "https://www.nbnco.com.au"})
                 address_response.raise_for_status()
                 address_raw_json = address_response.json()
 
@@ -89,7 +89,7 @@ async def check_address(request: Request, address: str = Form(...), loc_id_selec
             # Step 2: Get location details using the locID
             print(f"Fetching details for LOC ID: {loc_id}")
             details_api_url = f"https://places.nbnco.net.au/places/v2/details/{loc_id}"
-            details_response = get(details_api_url, headers={"Referer": "https://www.nbnco.com.au"})
+            details_response = requests.get(details_api_url, headers={"Referer": "https://www.nbnco.com.au"})
             details_response.raise_for_status()
             details_raw_json = details_response.json()
 
