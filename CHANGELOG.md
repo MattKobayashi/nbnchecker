@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.2.0...v1.3.0) (2025-04-02)
+
+
+### Features
+
+* Add GitHub link button ([#23](https://github.com/MattKobayashi/nbnchecker/issues/23)) ([8307aea](https://github.com/MattKobayashi/nbnchecker/commit/8307aeafb342d1c6849130129e4fe6615a216f88))
+
 ## [1.2.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.1.0...v1.2.0) (2025-04-02)
 
 
