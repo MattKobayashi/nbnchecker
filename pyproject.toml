@@ -1,6 +1,6 @@
 [project]
 name = "nbnchecker"
-version = "1.2.0"
+version = "1.4.0"
 description = "A web interface for querying the nbnco public APIs"
 readme = "README.md"
 requires-python = ">=3.13"
