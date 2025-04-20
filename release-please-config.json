@@ -1,6 +1,7 @@
 {
   "packages": {
     ".": {
+      "always-update": true,
       "changelog-path": "CHANGELOG.md",
       "release-type": "simple",
       "bump-minor-pre-major": false,
