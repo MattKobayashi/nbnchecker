@@ -3,7 +3,7 @@ jobs:
   publish:
     name: Publish
     secrets: inherit
-    uses: MattKobayashi/actions-workflows/.github/workflows/publish.yaml@27c3f610dca007cad9095926d1aef2cf89083421 # v1.0.3
+    uses: MattKobayashi/actions-workflows/.github/workflows/publish.yaml@7bc1f74fc07eae5337864304ebccc7a8f049c3d6 # v1.1.0
     with:
       image-name: nbnchecker
 name: Publish
