@@ -23,8 +23,8 @@ jobs:
           set -eux
           pipx install uv
           uv run python3 -m unittest discover tests
-  container:
-    name: Container image
+  image:
+    name: Image
     runs-on: ubuntu-24.04
     steps:
       # Checkout the repository
@@ -62,7 +62,7 @@ jobs:
         run: |
           set -eux
           docker image rm --force ${{ steps.build.outputs.imageid }}
-name: Tests
+name: Test
 on:
   pull_request:
     branches:
