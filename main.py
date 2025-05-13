@@ -18,6 +18,11 @@ async def read_root(request: Request):
     """Renders the initial form page."""
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/health")
+async def health_check():
+    """Returns a health status."""
+    return {"status": "healthy"}
+
 @app.post("/", response_class=HTMLResponse)
 async def check_address(request: Request, address: str = Form(...), loc_id_selected: Optional[str] = Form(None)):
     """Handles form submission, calls NBN APIs directly, and renders results."""
