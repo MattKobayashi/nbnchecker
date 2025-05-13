@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.4.0...v1.5.0) (2025-05-13)
+
+
+### Features
+
+* Add health check endpoint and Docker healthcheck ([#39](https://github.com/MattKobayashi/nbnchecker/issues/39)) ([f846aa7](https://github.com/MattKobayashi/nbnchecker/commit/f846aa7e6871a76e484b6b9ad4b9fcf85d2171ef))
+
 ## [1.4.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.3.0...v1.4.0) (2025-04-02)
 
 
