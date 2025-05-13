@@ -5,7 +5,7 @@ ENV UID=911
 ENV GID=911
 # uv and project
 WORKDIR /opt/${USERNAME}
-RUN apk --no-cache add uv \
+RUN apk --no-cache add uv curl \
     && addgroup \
       --gid "$GID" \
       "$GROUPNAME" \
@@ -23,5 +23,9 @@ COPY --chmod=644 --chown=${UID}:${GID} pyproject.toml pyproject.toml
 COPY --chmod=644 --chown=${UID}:${GID} templates/ templates/
 EXPOSE 8000
 USER ${USERNAME}
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl --fail http://localhost:8000/health || exit 1
+
 ENTRYPOINT ["uv", "run", "main.py"]
 LABEL org.opencontainers.image.authors="MattKobayashi <matthew@kobayashi.au>"
