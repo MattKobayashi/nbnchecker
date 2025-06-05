@@ -4,7 +4,7 @@ import json
 import requests
 from fastapi import FastAPI, Request, Form
 from typing import Optional
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 #from fastapi.staticfiles import StaticFiles
 
@@ -18,7 +18,7 @@ async def read_root(request: Request):
     """Renders the initial form page."""
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/health")
+@app.get("/health", include_in_schema=False, response_class=JSONResponse)
 async def health_check():
     """Returns a health status."""
     return {"status": "healthy"}
