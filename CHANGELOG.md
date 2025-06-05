@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/MattKobayashi/nbnchecker/compare/v1.5.0...v1.5.1) (2025-06-05)
+
+
+### Bug Fixes
+
+* Include JSONResponse in health check endpoint and update response class ([#44](https://github.com/MattKobayashi/nbnchecker/issues/44)) ([9166b6f](https://github.com/MattKobayashi/nbnchecker/commit/9166b6feb2d39823b7309a98d4ff925b351fa92e))
+
 ## [1.5.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.4.0...v1.5.0) (2025-05-13)
 
 
