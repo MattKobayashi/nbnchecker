@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.5](https://github.com/MattKobayashi/nbnchecker/compare/v1.5.4...v1.5.5) (2025-07-02)
+
+
+### Bug Fixes
+
+* add integrity attribute to external scripts and CSS ([#56](https://github.com/MattKobayashi/nbnchecker/issues/56)) ([7487080](https://github.com/MattKobayashi/nbnchecker/commit/74870806597bcd4129bc50c37267dab73d67f3bf))
+
 ## [1.5.4](https://github.com/MattKobayashi/nbnchecker/compare/v1.5.3...v1.5.4) (2025-06-26)
 
 
