@@ -20,7 +20,8 @@ RUN apk --no-cache add curl uv \
     && chown -R ${UID}:${GID} /opt/${USERNAME}
 COPY --chmod=644 --chown=${UID}:${GID} main.py main.py
 COPY --chmod=644 --chown=${UID}:${GID} pyproject.toml pyproject.toml
-COPY --chmod=644 --chown=${UID}:${GID} templates/ templates/
+RUN mkdir -p templates
+COPY --chmod=644 --chown=${UID}:${GID} templates/index.html templates/
 EXPOSE 8000
 USER ${USERNAME}
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
