@@ -1,11 +1,18 @@
-FROM python:3.13.5-alpine@sha256:9b4929a72599b6c6389ece4ecbf415fd1355129f22bb92bb137eea098f05e975
+FROM alpine:3.22.0@sha256:8a1f59ffb675680d47db6337b49d22281a139e9d709335b492be023728e11715
 ENV USERNAME=nbnchecker
 ENV GROUPNAME=$USERNAME
 ENV UID=911
 ENV GID=911
-# uv and project
+
+# renovate: datasource=repology depName=alpine_3_22/curl
+ENV CURL_VERSION="8.14.1-r1"
+# renovate: datasource=repology depName=alpine_3_22/uv
+ENV UV_VERSION="0.7.9-r0"
+
 WORKDIR /opt/${USERNAME}
-RUN apk --no-cache add curl uv \
+RUN apk --no-cache add \
+      curl="${CURL_VERSION}" \
+      uv="${UV_VERSION}" \
     && addgroup \
       --gid "$GID" \
       "$GROUPNAME" \
@@ -20,7 +27,8 @@ RUN apk --no-cache add curl uv \
     && chown -R ${UID}:${GID} /opt/${USERNAME}
 COPY --chmod=644 --chown=${UID}:${GID} main.py main.py
 COPY --chmod=644 --chown=${UID}:${GID} pyproject.toml pyproject.toml
-COPY --chmod=644 --chown=${UID}:${GID} templates/ templates/
+RUN mkdir -p templates
+COPY --chmod=644 --chown=${UID}:${GID} templates/index.html templates/
 EXPOSE 8000
 USER ${USERNAME}
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
