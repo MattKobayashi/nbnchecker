@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/MattKobayashi/nbnchecker/compare/v1.5.6...v1.6.0) (2025-07-11)
+
+
+### Features
+
+* **docker:** switch to Alpine base and dep updates via Renovate ([#60](https://github.com/MattKobayashi/nbnchecker/issues/60)) ([2c05bc7](https://github.com/MattKobayashi/nbnchecker/commit/2c05bc70796fe12faacab3a29ed0d541f15ae75b))
+
+
+### Miscellaneous Chores
+
+* **pyproject:** bump version ([#62](https://github.com/MattKobayashi/nbnchecker/issues/62)) ([50c1cbb](https://github.com/MattKobayashi/nbnchecker/commit/50c1cbb5f3964122072b5dda4b6785c77ac8c679))
+
 ## [1.5.6](https://github.com/MattKobayashi/nbnchecker/compare/v1.5.5...v1.5.6) (2025-07-08)
 
 
