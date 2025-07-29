@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.1...v1.6.2) (2025-07-29)
+
+
+### Bug Fixes
+
+* **docker:** move to uv base image ([#66](https://github.com/MattKobayashi/nbnchecker/issues/66)) ([2722e38](https://github.com/MattKobayashi/nbnchecker/commit/2722e383514a5ca2438526ff75bb45a99bd00c4b))
+
 ## [1.6.1](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.0...v1.6.1) (2025-07-12)
 
 
