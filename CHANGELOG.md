@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.2...v1.6.3) (2025-07-29)
+
+
+### Bug Fixes
+
+* **docker:** re-add removed healthcheck ([#68](https://github.com/MattKobayashi/nbnchecker/issues/68)) ([f87de55](https://github.com/MattKobayashi/nbnchecker/commit/f87de55966a9ae9138e2f038874b0a7e6cf8ac41))
+
 ## [1.6.2](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.1...v1.6.2) (2025-07-29)
 
 
