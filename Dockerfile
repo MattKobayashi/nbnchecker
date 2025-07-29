@@ -1,37 +1,37 @@
-FROM alpine:3.22.0@sha256:8a1f59ffb675680d47db6337b49d22281a139e9d709335b492be023728e11715
-ENV USERNAME=nbnchecker
-ENV GROUPNAME=$USERNAME
-ENV UID=911
-ENV GID=911
+# First, build the application in the `/app` directory.
+FROM ghcr.io/astral-sh/uv:0.8.3-python3.13-alpine@sha256:99ce5a7ebcf37cec9d8df603d816d13e2508401a13df9a8d35598b665ae25b3c AS builder
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
-# renovate: datasource=repology depName=alpine_3_22/curl
-ENV CURL_VERSION="8.14.1-r1"
-# renovate: datasource=repology depName=alpine_3_22/uv
-ENV UV_VERSION="0.7.9-r0"
+# Disable Python downloads, because we want to use the system interpreter
+# across both images. If using a managed Python version, it needs to be
+# copied from the build image into the final image; see `standalone.Dockerfile`
+# for an example.
+ENV UV_PYTHON_DOWNLOADS=0
 
-WORKDIR /opt/${USERNAME}
-RUN apk --no-cache add \
-      curl="${CURL_VERSION}" \
-      uv="${UV_VERSION}" \
-    && addgroup \
-      --gid "$GID" \
-      "$GROUPNAME" \
-    && adduser \
-      --disabled-password \
-      --gecos "" \
-      --home "$(pwd)" \
-      --ingroup "$GROUPNAME" \
-      --no-create-home \
-      --uid "$UID" \
-      $USERNAME \
-    && chown -R ${UID}:${GID} /opt/${USERNAME}
-COPY --chmod=644 --chown=${UID}:${GID} main.py main.py
-COPY --chmod=644 --chown=${UID}:${GID} pyproject.toml pyproject.toml
-RUN mkdir -p templates
-COPY --chmod=644 --chown=${UID}:${GID} templates/index.html templates/
-EXPOSE 8000
-USER ${USERNAME}
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl --fail http://localhost:8000/health || exit 1
-ENTRYPOINT ["uv", "run", "main.py"]
-LABEL org.opencontainers.image.authors="MattKobayashi <matthew@kobayashi.au>"
+WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project --no-dev
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev
+
+
+# Then, use a final image without uv
+FROM python:3.13-alpine@sha256:37b14db89f587f9eaa890e4a442a3fe55db452b69cca1403cc730bd0fbdc8aaf
+# It is important to use the image that matches the builder, as the path to the
+# Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
+# will fail.
+
+# Install dependencies
+RUN apk --no-cache add curl
+
+# Copy the application from the builder
+COPY --from=builder --chown=app:app /app /app
+
+# Place executables in the environment at the front of the path
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Run the FastAPI application by default
+CMD ["python3", "/app/main.py"]
