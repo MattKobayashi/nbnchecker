@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.4](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.3...v1.6.4) (2025-08-01)
+
+
+### Bug Fixes
+
+* **main:** correct template directory ([e02a274](https://github.com/MattKobayashi/nbnchecker/commit/e02a2747950b37bb40e808a9f40d88e22799d476))
+
 ## [1.6.3](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.2...v1.6.3) (2025-07-29)
 
 
