@@ -10,7 +10,7 @@ jobs:
       # Checkout the repository
       # https://github.com/actions/checkout
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       # Set up Python 3.13
       # https://github.com/actions/setup-python
       - name: Set up Python 3.13
@@ -30,7 +30,7 @@ jobs:
       # Checkout the repository
       # https://github.com/actions/checkout
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       # Add support for more platforms with QEMU (optional)
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
