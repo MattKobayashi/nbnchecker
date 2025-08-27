@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.5](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.4...v1.6.5) (2025-08-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency requests to v2.32.5 ([#87](https://github.com/MattKobayashi/nbnchecker/issues/87)) ([70ae732](https://github.com/MattKobayashi/nbnchecker/commit/70ae732d995186d2e3d9458d6aa2466168fce6d4))
+
 ## [1.6.4](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.3...v1.6.4) (2025-08-01)
 
 
