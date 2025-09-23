@@ -1,5 +1,5 @@
 # First, build the application in the `/app` directory.
-FROM ghcr.io/astral-sh/uv:0.8.20-python3.13-alpine@sha256:b962937b98dacd6a33478d6e54b523bb6af3f95b0a573a7ce738ed9fc176dca6 AS builder
+FROM ghcr.io/astral-sh/uv:0.8.21-python3.13-alpine@sha256:f487be4ed4ef0cc7b813dadf7a2bc0f3e3cd32674ede25caeb476fcffeb62de0 AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 # Disable Python downloads, because we want to use the system interpreter
