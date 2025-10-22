@@ -10,7 +10,9 @@ ENV UV_PYTHON_DOWNLOADS=0
 
 WORKDIR /app
 RUN apt-get update \
-    && apt-get install --no-install-recommends --yes build-essential
+    && apt-get install --no-install-recommends --yes \
+    build-essential \
+    rust-all
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
@@ -28,7 +30,8 @@ FROM python:3.14-slim-trixie@sha256:79eaa9622e4daa24b775ac2c9b6dc49b4f302ce925e3
 
 # Install dependencies
 RUN apt-get update \
-    && apt-get install --no-install-recommends --yes curl
+    && apt-get install --no-install-recommends --yes \
+    curl
 
 # Copy the application from the builder
 COPY --from=builder --chown=app:app /app /app
@@ -41,4 +44,4 @@ CMD ["python3", "/app/main.py"]
 
 # Define the health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl --fail http://localhost:8000/health || exit 1
+    CMD curl --fail http://localhost:8000/health || exit 1
