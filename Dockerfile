@@ -1,5 +1,5 @@
 # First, build the application in the `/app` directory.
-FROM ghcr.io/astral-sh/uv:0.9.4-python3.13-trixie-slim@sha256:deef5c40e67574c1c23e7f1a448c9645102fbea75f84ef9f7df0b9845292c16d AS builder
+FROM ghcr.io/astral-sh/uv:0.9.5-python3.13-trixie-slim@sha256:723665f282853da4b807ed0343ec0c10cea7f9a1774f68f74fe3d2ff998683ed AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 # Disable Python downloads, because we want to use the system interpreter
