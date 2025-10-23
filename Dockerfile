@@ -1,5 +1,5 @@
 # First, build the application in the `/app` directory.
-FROM ghcr.io/astral-sh/uv:0.9.5-python3.13-alpine@sha256:fa7fb949bdbcaca51dfc5c3ce4bba1f7f15e9f4b1abde3e8c84fcc9d3e0b887d AS builder
+FROM ghcr.io/astral-sh/uv:0.9.4-python3.13-trixie-slim@sha256:064f40c74b8168db1a683d6fee1283963cb8366c1219cfa5d25f53bc4aa444cd AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 # Disable Python downloads, because we want to use the system interpreter
@@ -7,6 +7,12 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 # copied from the build image into the final image; see `standalone.Dockerfile`
 # for an example.
 ENV UV_PYTHON_DOWNLOADS=0
+
+# Python 3.14 fixes
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes \
+    build-essential \
+    rust-all
 
 WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -19,13 +25,15 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 
 # Then, use a final image without uv
-FROM python:3.14-alpine@sha256:8373231e1e906ddfb457748bfc032c4c06ada8c759b7b62d9c73ec2a3c56e710
+FROM python:3.13-slim-trixie@sha256:c4979cc54d0a75b302bec36a571786b447399471f63731bad0cd718d3c4791e8
 # It is important to use the image that matches the builder, as the path to the
 # Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
 # will fail.
 
 # Install dependencies
-RUN apk --no-cache add curl
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes \
+    curl
 
 # Copy the application from the builder
 COPY --from=builder --chown=app:app /app /app
@@ -38,4 +46,4 @@ CMD ["python3", "/app/main.py"]
 
 # Define the health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl --fail http://localhost:8000/health || exit 1
+    CMD curl --fail http://localhost:8000/health || exit 1
