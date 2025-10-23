@@ -1,5 +1,5 @@
 # First, build the application in the `/app` directory.
-FROM ghcr.io/astral-sh/uv:0.9.5-python3.14-trixie-slim@sha256:fbbaa91ee6ee8a38dc9617a7a2b6484b3c87bb354a89fe12e0084dd5185254c6 AS builder
+FROM ghcr.io/astral-sh/uv:0.9.4-python3.13-trixie-slim@sha256:064f40c74b8168db1a683d6fee1283963cb8366c1219cfa5d25f53bc4aa444cd AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 # Disable Python downloads, because we want to use the system interpreter
@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 
 # Then, use a final image without uv
-FROM python:3.14-slim-trixie@sha256:79eaa9622e4daa24b775ac2c9b6dc49b4f302ce925e3dcf1851782b9c93cf5f5
+FROM python:3.13-slim-trixie@sha256:c4979cc54d0a75b302bec36a571786b447399471f63731bad0cd718d3c4791e8
 # It is important to use the image that matches the builder, as the path to the
 # Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
 # will fail.
