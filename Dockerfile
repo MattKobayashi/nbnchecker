@@ -1,5 +1,4 @@
-# First, build the application in the `/app` directory.
-FROM ghcr.io/astral-sh/uv:0.9.4-python3.13-trixie-slim@sha256:deef5c40e67574c1c23e7f1a448c9645102fbea75f84ef9f7df0b9845292c16d AS builder
+FROM python:3.14-slim-trixie@sha256:4ed33101ee7ec299041cc41dd268dae17031184be94384b1ce7936dc4e5dead3 AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 # Disable Python downloads, because we want to use the system interpreter
@@ -8,11 +7,13 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 # for an example.
 ENV UV_PYTHON_DOWNLOADS=0
 
-# Python 3.14 fixes
+# Install build dependencies
 RUN apt-get update \
     && apt-get install --no-install-recommends --yes \
-    build-essential \
-    rust-all
+    build-essential
+
+# Copy the uv binaries from the distroless image
+COPY --from=ghcr.io/astral-sh/uv:0.9.5@sha256:f459f6f73a8c4ef5d69f4e6fbbdb8af751d6fa40ec34b39a1ab469acd6e289b7 /uv /uvx /bin/
 
 WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -23,8 +24,6 @@ COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
-
-# Then, use a final image without uv
 FROM python:3.14-slim-trixie@sha256:4ed33101ee7ec299041cc41dd268dae17031184be94384b1ce7936dc4e5dead3
 # It is important to use the image that matches the builder, as the path to the
 # Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
