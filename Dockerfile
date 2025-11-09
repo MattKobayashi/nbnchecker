@@ -10,8 +10,7 @@ ENV UV_PYTHON_DOWNLOADS=0
 # Install build dependencies
 RUN apt-get update \
     && apt-get install --no-install-recommends --yes \
-    build-essential \
-    rustup
+    cargo
 
 # Copy the uv binaries from the distroless image
 COPY --from=ghcr.io/astral-sh/uv:0.9.8@sha256:08f409e1d53e77dfb5b65c788491f8ca70fe1d2d459f41c89afa2fcbef998abe /uv /uvx /bin/
