@@ -78,11 +78,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - "**.py"
-      - "**.toml"
-      - "**.yaml"
-      - "Dockerfile"
   workflow_dispatch:
 permissions:
   contents: read
