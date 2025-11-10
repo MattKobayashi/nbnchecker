@@ -2,6 +2,9 @@
 jobs:
   publish:
     name: Publish
+    permissions:
+      contents: read
+      packages: write
     secrets: inherit
     uses: MattKobayashi/actions-workflows/.github/workflows/publish.yaml@840749d3cf0dd5433e6fdffcb1ab37786e123ce7 # v1.2.0
     with:
@@ -14,4 +17,3 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-  packages: write
