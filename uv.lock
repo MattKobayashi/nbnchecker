@@ -138,16 +138,16 @@ standard = [
 
 [[package]]
 name = "fastapi-cli"
-version = "0.0.16"
+version = "0.0.20"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "rich-toolkit" },
     { name = "typer" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/99/75/9407a6b452be4c988feacec9c9d2f58d8f315162a6c7258d5a649d933ebe/fastapi_cli-0.0.16.tar.gz", hash = "sha256:e8a2a1ecf7a4e062e3b2eec63ae34387d1e142d4849181d936b23c4bdfe29073", size = 19447, upload-time = "2025-11-10T19:01:07.856Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d3/ca/d90fb3bfbcbd6e56c77afd9d114dd6ce8955d8bb90094399d1c70e659e40/fastapi_cli-0.0.20.tar.gz", hash = "sha256:d17c2634f7b96b6b560bc16b0035ed047d523c912011395f49f00a421692bc3a", size = 19786, upload-time = "2025-12-22T17:13:33.794Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/55/43/678528c19318394320ee43757648d5e0a8070cf391b31f69d931e5c840d2/fastapi_cli-0.0.16-py3-none-any.whl", hash = "sha256:addcb6d130b5b9c91adbbf3f2947fe115991495fdb442fe3e51b5fc6327df9f4", size = 12312, upload-time = "2025-11-10T19:01:06.728Z" },
+    { url = "https://files.pythonhosted.org/packages/08/89/5c4eef60524d0fd704eb0706885b82cd5623a43396b94e4a5b17d3a3f516/fastapi_cli-0.0.20-py3-none-any.whl", hash = "sha256:e58b6a0038c0b1532b7a0af690656093dee666201b6b19d3c87175b358e9f783", size = 12390, upload-time = "2025-12-22T17:13:31.708Z" },
 ]
 
 [package.optional-dependencies]
@@ -158,7 +158,7 @@ standard = [
 
 [[package]]
 name = "fastapi-cloud-cli"
-version = "0.7.0"
+version = "0.8.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastar" },
@@ -170,9 +170,9 @@ dependencies = [
     { name = "typer" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cf/0d/3b0d2991f481c122c552b4ae38a8b400a75ab0edbc85536f2a6224f72da2/fastapi_cloud_cli-0.7.0.tar.gz", hash = "sha256:8b025944475c3d53262105886dfe051f46383e4f287787a46892b524922ac0b6", size = 30906, upload-time = "2025-12-16T12:51:49.082Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/51/5d/3b33438de35521fab4968b232caa9a4bd568a5078f2b2dfb7bb8a4528603/fastapi_cloud_cli-0.8.0.tar.gz", hash = "sha256:cf07c502528bfd9e6b184776659f05d9212811d76bbec9fbb6bf34bed4c7456f", size = 30257, upload-time = "2025-12-23T12:08:33.904Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2d/aa/a2319f008e123b178a5c4cba34935e8459e72d24d8c31214b244ab7266a6/fastapi_cloud_cli-0.7.0-py3-none-any.whl", hash = "sha256:9a152e80d08d465d4a6c4f5c75aa8871d1e8919f69ff131b0567f04e95d5f36c", size = 23376, upload-time = "2025-12-16T12:51:47.847Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/8e/abb95ef59e91bb5adaa2d18fbf9ea70fd524010bb03f406a2dd2a4775ef9/fastapi_cloud_cli-0.8.0-py3-none-any.whl", hash = "sha256:e9f40bee671d985fd25d7a5409b56d4f103777bf8a0c6d746ea5fbf97a8186d9", size = 22306, upload-time = "2025-12-23T12:08:32.68Z" },
 ]
 
 [[package]]
@@ -607,7 +607,7 @@ wheels = [
 
 [[package]]
 name = "typer"
-version = "0.20.1"
+version = "0.21.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -615,9 +615,9 @@ dependencies = [
     { name = "shellingham" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6d/c1/933d30fd7a123ed981e2a1eedafceab63cb379db0402e438a13bc51bbb15/typer-0.20.1.tar.gz", hash = "sha256:68585eb1b01203689c4199bc440d6be616f0851e9f0eb41e4a778845c5a0fd5b", size = 105968, upload-time = "2025-12-19T16:48:56.302Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/85/30/ff9ede605e3bd086b4dd842499814e128500621f7951ca1e5ce84bbf61b1/typer-0.21.0.tar.gz", hash = "sha256:c87c0d2b6eee3b49c5c64649ec92425492c14488096dfbc8a0c2799b2f6f9c53", size = 106781, upload-time = "2025-12-25T09:54:53.651Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c8/52/1f2df7e7d1be3d65ddc2936d820d4a3d9777a54f4204f5ca46b8513eff77/typer-0.20.1-py3-none-any.whl", hash = "sha256:4b3bde918a67c8e03d861aa02deca90a95bbac572e71b1b9be56ff49affdb5a8", size = 47381, upload-time = "2025-12-19T16:48:53.679Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/e4/5ebc1899d31d2b1601b32d21cfb4bba022ae6fce323d365f0448031b1660/typer-0.21.0-py3-none-any.whl", hash = "sha256:c79c01ca6b30af9fd48284058a7056ba0d3bf5cf10d0ff3d0c5b11b68c258ac6", size = 47109, upload-time = "2025-12-25T09:54:51.918Z" },
 ]
 
 [[package]]
