@@ -5,6 +5,6 @@ description = "A web interface for querying the nbnco public APIs"
 readme = "README.md"
 requires-python = ">=3.14, <3.15"
 dependencies = [
-    "fastapi[standard]==0.128.2",
+    "fastapi[standard]==0.128.3",
     "requests==2.32.5",
 ]
