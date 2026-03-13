@@ -6,7 +6,7 @@ jobs:
       contents: read
       packages: write
     secrets: inherit
-    uses: MattKobayashi/actions-workflows/.github/workflows/publish.yaml@6770ac44f4019b59c3da45c47702d0077354027f # v1.3.0
+    uses: MattKobayashi/actions-workflows/.github/workflows/publish.yaml@686b2644a231ae70f253b9e1f63e978cddfecad5 # v1.4.1
     with:
       image-name: nbnchecker
 name: Publish
