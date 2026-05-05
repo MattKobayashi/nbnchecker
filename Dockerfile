@@ -8,7 +8,7 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 ENV UV_PYTHON_DOWNLOADS=0
 
 # Copy the uv binaries from the distroless image
-COPY --from=ghcr.io/astral-sh/uv:0.11.8@sha256:3b7b60a81d3c57ef471703e5c83fd4aaa33abcd403596fb22ab07db85ae91347 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.11.9@sha256:6b6fa841d71a48fbc9e2c55651c5ad570e01104d7a7d701f57b2b22c0f58e9b1 /uv /uvx /bin/
 
 WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
