@@ -3,6 +3,7 @@ import uvicorn
 import json
 import requests
 from fastapi import FastAPI, Request, Form
+from pathlib import Path
 from typing import Optional
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -11,13 +12,13 @@ from fastapi.templating import Jinja2Templates
 app = FastAPI()
 
 # Configure templates
-templates = Jinja2Templates(directory="/app/templates")
+templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     """Renders the initial form page."""
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request, "index.html", {"request": request})
 
 
 @app.get("/health", include_in_schema=False, response_class=JSONResponse)
@@ -192,7 +193,7 @@ async def check_address(
     context["results"] = results_data
     context["suggestions_list"] = suggestions_list
 
-    return templates.TemplateResponse("index.html", context)
+    return templates.TemplateResponse(request, "index.html", context)
 
 
 if __name__ == "__main__":
