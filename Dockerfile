@@ -1,4 +1,4 @@
-FROM python:3.15.1-slim-trixie@sha256:5b5ca730846f66dc816dbac397fcc0ec002230ec3aee6e09d2c44f8eafeddda2 AS builder
+FROM python:3.15.1-slim-trixie@sha256:08275f764e022331c6d3e3ca55d8cce01fa4684b02111adf0445d71806fe7941 AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 # Disable Python downloads, because we want to use the system interpreter
@@ -19,7 +19,7 @@ COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
-FROM python:3.15.1-slim-trixie@sha256:5b5ca730846f66dc816dbac397fcc0ec002230ec3aee6e09d2c44f8eafeddda2
+FROM python:3.15.1-slim-trixie@sha256:08275f764e022331c6d3e3ca55d8cce01fa4684b02111adf0445d71806fe7941
 # It is important to use the image that matches the builder, as the path to the
 # Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
 # will fail.
