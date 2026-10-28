@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.32](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.31...v1.6.32) (2026-10-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fastapi to v0.156.7 ([#541](https://github.com/MattKobayashi/nbnchecker/issues/541)) ([6419896](https://github.com/MattKobayashi/nbnchecker/commit/64198963ca7030b03b8bb55c6625d35ba1020108))
+* **deps:** update dependency fastapi to v0.158.1 ([#544](https://github.com/MattKobayashi/nbnchecker/issues/544)) ([f8b08f9](https://github.com/MattKobayashi/nbnchecker/commit/f8b08f9348171e8b7d2e5e87216bbcea02ffb8a2))
+* **deps:** update dependency fastapi to v0.159.1 ([#545](https://github.com/MattKobayashi/nbnchecker/issues/545)) ([ed41afe](https://github.com/MattKobayashi/nbnchecker/commit/ed41afe4dd07dc208f1a15fbe9d4126316941913))
+* **deps:** update dependency fastapi to v0.161.0 ([#550](https://github.com/MattKobayashi/nbnchecker/issues/550)) ([979fe86](https://github.com/MattKobayashi/nbnchecker/commit/979fe86fab0b4947b44dce8dce7017aae5dcbb02))
+* **deps:** update dependency fastapi to v0.161.1 ([#551](https://github.com/MattKobayashi/nbnchecker/issues/551)) ([b2a10f4](https://github.com/MattKobayashi/nbnchecker/commit/b2a10f494dd01cf3047e01c129c2632de88fbf91))
+* **deps:** update dependency fastapi to v0.162.0 ([#552](https://github.com/MattKobayashi/nbnchecker/issues/552)) ([07a1e5f](https://github.com/MattKobayashi/nbnchecker/commit/07a1e5f615f3c209a4b5ffaa9a5f0af339085006))
+
 ## [1.6.4](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.3...v1.6.4) (2025-08-01)
 
 
