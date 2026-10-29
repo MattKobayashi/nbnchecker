@@ -5,10 +5,24 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+      - id: release
+        name: Run the Release Please action
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           release-type: simple
           token: ${{ secrets.RP_TOKEN }}
+      - env:
+          GH_TOKEN: ${{ secrets.RP_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PRS_JSON: ${{ steps.release.outputs.prs }}
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        name: Assign release PR(s) to me
+        run: |
+          printf '%s\n' "$PRS_JSON" \
+            | jq -r '.[].number' \
+            | while read -r pr; do
+                gh pr edit "$pr" --add-assignee "@me"
+              done
 on:
   push:
     branches:
