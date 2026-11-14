@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.37](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.36...v1.6.37) (2026-11-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fastapi to v0.163.0 ([#582](https://github.com/MattKobayashi/nbnchecker/issues/582)) ([7272322](https://github.com/MattKobayashi/nbnchecker/commit/727232261bdca899b8f5336c7d761d1809a3af7b))
+
 ## [1.6.36](https://github.com/MattKobayashi/nbnchecker/compare/v1.6.35...v1.6.36) (2026-11-13)
 
 
